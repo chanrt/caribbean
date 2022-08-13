@@ -1,15 +1,21 @@
+from time import time
 import pygame as pg
+
 from constants import consts as c
 from player import Player
 
 
 def game_loop(screen):
     pg.display.set_caption("Caribbean")
-    bg_color = pg.Color("blue")
 
     player = Player()
+    c.set_player(player)
+
+    trails = []
+    c.set_trails(trails)
 
     while True:
+        start = time()
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return
@@ -17,11 +23,20 @@ def game_loop(screen):
                 if event.key == pg.K_ESCAPE:
                     return
 
-        screen.fill(bg_color)
+        screen.fill(c.water_color)
 
+        player.update()
+        for trail in trails:
+            trail.update()
+
+        for trail in trails:
+            trail.render()
         player.render()
 
         pg.display.flip()
+
+        end = time()
+        c.set_dt(end - start)
 
 
 if __name__ == '__main__':
