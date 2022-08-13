@@ -1,3 +1,4 @@
+from math import radians
 import pygame as pg
 
 
@@ -9,6 +10,8 @@ class Constants:
         self.water_color = pg.Color(9, 195, 219)
 
         self.player_move_speed = 30
+        self.player_turn_rate = radians(0.2)
+        self.player_max_turn = radians(10)
 
         self.trail_radius = 10
         self.trail_decay_probability = 0.025

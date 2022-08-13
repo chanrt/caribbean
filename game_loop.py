@@ -16,6 +16,8 @@ def game_loop(screen):
 
     while True:
         start = time()
+
+        keys_pressed = pg.key.get_pressed()
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return
@@ -25,7 +27,7 @@ def game_loop(screen):
 
         screen.fill(c.water_color)
 
-        player.update()
+        player.update(keys_pressed)
         for trail in trails:
             trail.update()
 
