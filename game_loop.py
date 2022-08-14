@@ -2,7 +2,7 @@ from time import time
 import pygame as pg
 
 from constants import consts as c
-from images import imgs as i
+from island import Island
 from player import Player
 
 
@@ -17,6 +17,10 @@ def game_loop(screen):
 
     projectiles = []
     c.set_projectiles(projectiles)
+
+    islands = []
+    island = Island(0, 500)
+    islands.append(island)
 
     frame = 0
 
@@ -45,6 +49,8 @@ def game_loop(screen):
 
         # updates
         player.update(keys_pressed)
+        for island in islands:
+            island.update()
         for trail in trails:
             trail.update()
         for projectile in projectiles:
@@ -53,6 +59,9 @@ def game_loop(screen):
         # renders
         for trail in trails:
             trail.render()
+        for island in islands:
+            if island.inside_screen:
+                island.render()
         for projectile in projectiles:
             projectile.render()
         player.render()
@@ -61,6 +70,7 @@ def game_loop(screen):
 
         end = time()
         c.set_dt(end - start)
+        print(1 / c.dt)
 
         # garbage collection
         frame += 1
@@ -79,5 +89,6 @@ def game_loop(screen):
 if __name__ == '__main__':
     pg.init()
     screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
+    # screen = pg.display.set_mode((800, 600))
     c.set_screen(screen)
     game_loop(screen)

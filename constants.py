@@ -10,6 +10,7 @@ class Constants:
 
         # colors
         self.water_color = pg.Color(9, 195, 219)
+        self.island_color = pg.Color(0, 128, 0)
 
         # player speed params
         self.player_move_speed = 30
@@ -22,14 +23,22 @@ class Constants:
         self.player_next_fire = 40
         self.player_broadside_cooldown = 3
         self.player_stern_cooldown = 1.5
-        self.recoil = 2
+        self.recoil = 1
 
         # projectile params
         self.projectile_speed = 200
 
         # trail params
+        self.player_trail_cycle = 10
         self.trail_radius = 10
-        self.trail_decay_probability = 0.03
+        self.trail_decay_probability = 0.02
+
+        # island params
+        self.island_num_points = 30
+        self.island_min_radius = 80
+        self.island_max_radius = 100
+        self.island_min_std = 5
+        self.island_max_std = 10
 
     def set_screen(self, screen):
         self.screen = screen

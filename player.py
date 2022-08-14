@@ -31,6 +31,9 @@ class Player:
         self.stern_cooldown = 0
         self.starboard_cooldown = 0
 
+        # trail
+        self.trail_cycle = 0
+
     def update(self, keys_pressed):
         self.dx, self.dy = 0, 0
 
@@ -110,8 +113,11 @@ class Player:
                 self.starboard_cooldown = 0
 
         # generate trail
-        new_trail = Trail(self.global_x - sin(self.angle) * self.width / 2, self.global_y - cos(self.angle) * self.height / 2)
-        c.trails.append(new_trail)
+        self.trail_cycle += 1
+        if self.trail_cycle == c.player_trail_cycle:
+            self.trail_cycle = 0
+            new_trail = Trail(self.global_x - sin(self.angle) * self.width / 2, self.global_y - cos(self.angle) * self.height / 2)
+            c.trails.append(new_trail)
 
         # updating changes
         self.global_x += self.dx
