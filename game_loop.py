@@ -7,6 +7,7 @@ from explosion import Explosion
 from images import imgs as i
 from island import Island
 from map_generator import MapGenerator
+from pirate import Pirate
 from player import Player
 from utils import *
 
@@ -14,6 +15,7 @@ from utils import *
 def game_loop(screen):
     pg.display.set_caption("Caribbean")
     clock = pg.time.Clock()
+    i.convert()
 
     player = Player()
     c.set_player(player)
@@ -26,6 +28,10 @@ def game_loop(screen):
 
     islands = []
     c.set_islands(islands)
+
+    pirates = []
+    # pirate = Pirate([0, 200], 0)
+    # pirates.append(pirate)
 
     map_generator = MapGenerator()
     map_generator.check_neighbouring_sectors()
@@ -73,6 +79,8 @@ def game_loop(screen):
             projectile.update()
         for explosion in explosions:
             explosion.update()
+        for pirate in pirates:
+            pirate.update()
 
         # collision between player and islands
         if not player.destroyed:
@@ -96,12 +104,15 @@ def game_loop(screen):
         for trail in trails:
             trail.render()
         for island in islands:
-            if island.inside_screen:
-                island.render()
+            island.render_outer()
+        for island in islands:
+            island.render_inner()
         for projectile in projectiles:
             projectile.render()
         for explosion in explosions:
             explosion.render()
+        for pirate in pirates:
+            pirate.render()
         if not player.destroyed:
             player.render()
 
@@ -125,13 +136,12 @@ def game_loop(screen):
             c.set_projectiles(projectiles)
 
             # check for unmapped neighbouring sectors
-            map_generator.check_neighbouring_sectors()
+            # map_generator.check_neighbouring_sectors()
 
 
 if __name__ == '__main__':
     pg.init()
     screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
     # screen = pg.display.set_mode((800, 600))
-    i.convert()
     c.set_screen(screen)
     game_loop(screen)

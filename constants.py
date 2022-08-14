@@ -20,6 +20,9 @@ class Constants:
         self.player_turn_rate = radians(0.2)
         self.player_max_turn = radians(10)
 
+        # pirate speed params
+        self.pirate_move_speed = 30
+
         # player fire params
         self.player_num_broadside_shots = 6
         self.player_num_stern_shots = 2

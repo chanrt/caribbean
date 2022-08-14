@@ -10,7 +10,6 @@ class Trail:
         self.radius = c.trail_radius
 
     def update(self):
-        self.global_position -= c.player.velocity * c.dt
         self.local_position = c.center_position + c.player.global_position - self.global_position
 
         if random() < c.trail_decay_probability and self.radius > 0:

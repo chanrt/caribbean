@@ -33,7 +33,6 @@ class Island:
         self.inside_screen = False
 
     def update(self):
-        self.global_position -= c.player.velocity * c.dt
         self.local_position = c.center_position + c.player.global_position - self.global_position
 
         if -c.island_max_radius < self.local_position[0] < c.s_width + c.island_max_radius and -c.island_max_radius < self.local_position[1] < c.s_height + c.island_max_radius:
@@ -46,7 +45,10 @@ class Island:
             self.local_outer_points = [self.local_position + relative_position for relative_position in self.outer_polygon]
             self.local_inner_points = [self.local_position + relative_position for relative_position in self.inner_polygon]
 
-    def render(self):
+    def render_outer(self):
         if self.inside_screen:
             pg.draw.polygon(c.screen, c.sand_color, self.local_outer_points)
+    
+    def render_inner(self):
+        if self.inside_screen:
             pg.draw.polygon(c.screen, c.grass_color, self.local_inner_points)

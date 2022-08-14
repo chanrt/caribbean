@@ -17,12 +17,16 @@ class Images:
     def __init__(self):
         pg.display.init()
         self.player_ship = pg.transform.rotate(pg.image.load('sprites/player_ship.png'), 180)
+        self.pirate_ship = pg.transform.rotate(pg.image.load('sprites/pirate_ship.png'), 180)
+
         self.projectile = pg.image.load('sprites/projectile.png')
         self.explosion_sprite = pg.image.load('sprites/explosion.png')
         self.explosion = serialize_images(self.explosion_sprite, 5, 5, 100, 100)
 
     def convert(self):
         self.player_ship = self.player_ship.convert_alpha()
+        self.pirate_ship = self.pirate_ship.convert_alpha()
+
         self.projectile = self.projectile.convert_alpha()
         self.explosion = [image.convert_alpha() for image in self.explosion]
 

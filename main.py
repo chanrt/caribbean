@@ -1,6 +1,7 @@
 import pygame as pg
 
 from constants import consts as c
+from images import imgs as i
 from game_loop import game_loop
 
 

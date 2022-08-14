@@ -16,7 +16,6 @@ class Explosion:
         self.update()
 
     def update(self):
-        self.global_position -= c.player.velocity * c.dt
         self.local_position = c.center_position + c.player.global_position - self.global_position - self.length_vector / 2
         self.cycle += 1
 
