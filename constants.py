@@ -17,11 +17,14 @@ class Constants:
 
         # player speed params
         self.player_move_speed = 30
-        self.player_turn_rate = radians(0.2)
-        self.player_max_turn = radians(10)
+        self.player_turn_speed = radians(20)
 
         # pirate speed params
         self.pirate_move_speed = 30
+        self.pirate_turn_speed = radians(20)
+
+        # flocking params
+        self.repulsion_radius = 200
 
         # player fire params
         self.player_num_broadside_shots = 6
@@ -51,7 +54,10 @@ class Constants:
         # sector params
         self.sector_length = 700
         self.min_islands = 1
-        self.max_islands = 3
+        self.max_islands = 2
+
+        # all objects
+        self.all_objects = []
 
     def set_screen(self, screen):
         self.screen = screen
@@ -60,6 +66,7 @@ class Constants:
 
     def set_player(self, player):
         self.player = player
+        # self.all_objects.append(player)
 
     def set_trails(self, trails):
         self.trails = trails
@@ -69,6 +76,17 @@ class Constants:
 
     def set_islands(self, islands):
         self.islands = islands
+        for island in self.islands:
+            self.all_objects.append(island)
+
+    def add_island(self, island):
+        self.islands.append(island)
+        self.all_objects.append(island)
+
+    def set_pirates(self, pirates):
+        self.pirates = pirates
+        for pirate in self.pirates:
+            self.all_objects.append(pirate)
 
     def set_dt(self, dt):
         self.dt = dt

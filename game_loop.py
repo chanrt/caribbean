@@ -26,19 +26,20 @@ def game_loop(screen):
     projectiles = []
     c.set_projectiles(projectiles)
 
+    pirates = []
+    pirate = Pirate([0, 250], 0)
+    pirates.append(pirate)
+    c.set_pirates(pirates)
+
     islands = []
     c.set_islands(islands)
-
-    pirates = []
-    # pirate = Pirate([0, 200], 0)
-    # pirates.append(pirate)
 
     map_generator = MapGenerator()
     map_generator.check_neighbouring_sectors()
 
     for island in islands:
         distance = global_distance_between(player, island)
-        if distance < c.sector_length:
+        if distance < c.sector_length / 2:
             islands.remove(island)
 
     explosions = []
@@ -46,6 +47,7 @@ def game_loop(screen):
     frame = 0
 
     while True:
+        # clock.tick(60)
         start = time()
 
         # inputs
@@ -93,6 +95,18 @@ def game_loop(screen):
                         explosion = Explosion(player.global_position)
                         explosions.append(explosion)
 
+        # collision between pirates and islands
+        for pirate in pirates:
+            for island in islands:
+                if island.inside_screen and not pirate.destroyed:
+                    polygon = path.Path(island.global_outer_points)
+                    inside = polygon.contains_points(pirate.reference_points)
+                    if any(inside):
+                        pirate.destroy()
+                        explosion = Explosion(pirate.global_position)
+                        explosions.append(explosion)
+                        return
+
         # collision between projectiles and islands
         for projectile in projectiles:
             for island in islands:
@@ -120,7 +134,7 @@ def game_loop(screen):
 
         end = time()
         c.set_dt(end - start)
-        # print(c.fps)
+        # print("FPS:", c.fps)
 
         # garbage collection and non important tasks
         frame += 1
@@ -136,7 +150,7 @@ def game_loop(screen):
             c.set_projectiles(projectiles)
 
             # check for unmapped neighbouring sectors
-            # map_generator.check_neighbouring_sectors()
+            map_generator.check_neighbouring_sectors()
 
 
 if __name__ == '__main__':

@@ -38,32 +38,34 @@ class Player:
 
         # flags
         self.destroyed = False
+        self.angle_changed = True
 
     def update(self, keys_pressed):
         self.velocity = zeros(2, dtype=float)
+        self.steer_angle = 0
         
         self.heading = array([sin(self.angle), cos(self.angle)], dtype=float)
         self.velocity += self.heading * c.player_move_speed
 
         # steering
-        if (keys_pressed[pg.K_LEFT] or keys_pressed[pg.K_a]) and abs(self.steer_angle) < c.player_max_turn * c.dt:
-            self.steer_angle += c.player_turn_rate * c.dt
-        if (keys_pressed[pg.K_RIGHT] or keys_pressed[pg.K_d]) and abs(self.steer_angle) < c.player_max_turn * c.dt:
-            self.steer_angle -= c.player_turn_rate * c.dt
-        if not keys_pressed[pg.K_LEFT] and not keys_pressed[pg.K_RIGHT] and not keys_pressed[pg.K_a] and not keys_pressed[pg.K_d]:
-            if abs(self.steer_angle) < c.player_turn_rate * c.dt:
-                self.steer_angle = 0
-            elif self.steer_angle > 0:
-                self.steer_angle -= c.player_turn_rate * c.dt
-            else:
-                self.steer_angle += c.player_turn_rate * c.dt
+        if (keys_pressed[pg.K_LEFT] or keys_pressed[pg.K_a]):
+            self.steer_angle += c.player_turn_speed
+            self.angle_changed = True
+        if (keys_pressed[pg.K_RIGHT] or keys_pressed[pg.K_d]):
+            self.steer_angle -= c.player_turn_speed
+            self.angle_changed = True
+
+        # updating changes
+        self.global_position += self.velocity * c.dt
+        self.angle += self.steer_angle * c.dt
 
         # rotating image sprite
-        if self.steer_angle != 0:
+        if self.angle_changed != 0:
             self.image = pg.transform.rotate(i.player_ship, degrees(self.angle))
             self.image_rect = self.image.get_rect(center=c.center_position)
             self.width, self.height = self.image.get_size()
             self.length_vector[0], self.length_vector[1] = self.width, self.height
+            self.angle_changed = False
 
         # checking if firing
         if self.firing:
@@ -124,15 +126,14 @@ class Player:
             new_trail = Trail(self.global_position - self.heading * self.length_vector / 2)
             c.trails.append(new_trail)
 
-        # updating changes
-        self.global_position += self.velocity * c.dt
-        self.angle += self.steer_angle
-
         # updating reference points
         self.front_position = self.global_position + self.heading * self.length_vector / 2
         self.back_position = self.global_position - self.heading * self.length_vector / 2
 
         self.reference_points = [self.front_position, self.back_position]
+
+        # print(self.velocity)
+        # print(degrees(self.angle))
 
     def render(self):
         c.screen.blit(self.image, self.image_rect)

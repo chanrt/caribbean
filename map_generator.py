@@ -21,7 +21,7 @@ class MapGenerator:
             x = randint(x_min, x_max)
             y = randint(y_min, y_max)
             new_island = Island(x, y)
-            c.islands.append(new_island)
+            c.add_island(new_island)
 
         # add to sectors mapped
         self.sectors_mapped.append(sector)
