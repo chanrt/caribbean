@@ -37,6 +37,9 @@ class Island:
         else:
             self.inside_screen = False
 
+        if self.inside_screen:
+            self.global_points = [(self.global_x + x, self.global_y + y) for x, y in self.polygon]
+            self.local_points = [(self.local_x + x, self.local_y + y) for x, y in self.polygon]
+
     def render(self):
-        points = [(self.local_x + x, self.local_y + y) for x, y in self.polygon]
-        pg.draw.polygon(c.screen, (255, 255, 255), points)
+        pg.draw.polygon(c.screen, (255, 255, 255), self.local_points)

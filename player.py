@@ -124,18 +124,22 @@ class Player:
         self.global_y += self.dy
         self.angle += self.steer_angle
 
+        # updating reference points
+        self.front_x = self.global_x + sin(self.angle) * self.width / 2
+        self.front_y = self.global_y + cos(self.angle) * self.height / 2
+        self.back_x = self.global_x - sin(self.angle) * self.width / 2
+        self.back_y = self.global_y - cos(self.angle) * self.height / 2
+        # self.left_x = self.global_x - cos(self.angle) * self.width / 2
+        # self.left_y = self.global_y + sin(self.angle) * self.height / 2
+        # self.right_x = self.global_x + cos(self.angle) * self.width / 2
+        # self.right_y = self.global_y - sin(self.angle) * self.height / 2
+
+        self.reference_points = [[self.front_x, self.front_y], [self.back_x, self.back_y]]
+
     def render(self):
         c.screen.blit(self.image, self.image_rect)
 
     def fire(self):
-        # bow location
-        self.front_x = self.global_x + sin(self.angle) * self.width / 2
-        self.front_y = self.global_y + cos(self.angle) * self.height / 2
-
-        # stern location
-        self.back_x = self.global_x - sin(self.angle) * self.width / 2
-        self.back_y = self.global_y - cos(self.angle) * self.height / 2
-
         # decide projectile coords and direction
         if self.fire_dir == 0:
             stern_projectile = Projectile(self.front_x, self.front_y, self.angle, self)

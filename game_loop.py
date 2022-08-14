@@ -1,3 +1,4 @@
+from matplotlib import path
 from time import time
 import pygame as pg
 
@@ -56,6 +57,13 @@ def game_loop(screen):
         for projectile in projectiles:
             projectile.update()
 
+        # check for collisions
+        for island in islands:
+            polygon = path.Path(island.global_points)
+            inside = polygon.contains_points(player.reference_points)
+            if any(inside):
+                return
+
         # renders
         for trail in trails:
             trail.render()
@@ -70,7 +78,6 @@ def game_loop(screen):
 
         end = time()
         c.set_dt(end - start)
-        print(1 / c.dt)
 
         # garbage collection
         frame += 1
