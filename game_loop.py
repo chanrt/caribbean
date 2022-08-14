@@ -32,9 +32,14 @@ def game_loop(screen):
                 if event.key == pg.K_ESCAPE:
                     return
                 if event.key == pg.K_q:
-                    player.prepare_broadside_fire(1)
+                    # fire portside cannons
+                    player.prepare_fire(1)
+                if event.key == pg.K_w:
+                    # fire stern cannons
+                    player.prepare_fire(0)
                 if event.key == pg.K_e:
-                    player.prepare_broadside_fire(-1)
+                    # fire starboard cannons
+                    player.prepare_fire(-1)
 
         screen.fill(c.water_color)
 

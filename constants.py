@@ -16,9 +16,10 @@ class Constants:
         self.player_turn_rate = radians(0.2)
         self.player_max_turn = radians(10)
 
-        # player broadside params
-        self.player_broadside_fire_cycle = 6
-        self.player_broadside_next_fire = 40
+        # player fire params
+        self.player_num_broadside_shots = 6
+        self.player_num_stern_shots = 2
+        self.player_next_fire = 40
 
         # projectile params
         self.projectile_speed = 200
