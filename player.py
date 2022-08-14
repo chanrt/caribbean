@@ -26,6 +26,11 @@ class Player:
         self.fire_dir = 0
         self.next_fire = 0
 
+        # cooldowns
+        self.portside_cooldown = 0
+        self.stern_cooldown = 0
+        self.starboard_cooldown = 0
+
     def update(self, keys_pressed):
         self.dx, self.dy = 0, 0
 
@@ -52,32 +57,57 @@ class Player:
             self.image_rect = self.image.get_rect(center=(c.s_width // 2, c.s_height // 2))
             self.width, self.height = self.image.get_size()
 
-        # checking broadside fire
+        # checking if firing
         if self.firing:
             if self.next_fire == 0:
                 self.fire()
 
+                # play sound
                 if self.fire_dir == 0:
                     a.stern_fire.play()
                 else:
                     a.broadside_fire.play()
+                    self.recoil()
 
+                # advance fire cycles
                 self.next_fire += 1
                 self.fire_cycle += 1
 
                 if self.fire_dir == 0:
+                    # stop stern fire
                     if self.fire_cycle == c.player_num_stern_shots:
                         self.firing = False
                         self.fire_cycle = 0
+                        self.stern_cooldown = c.player_stern_cooldown
                 else:
+                    # stop broadside fire
                     if self.fire_cycle == c.player_num_broadside_shots:
                         self.firing = False
                         self.fire_cycle = 0
-                    
+
+                        if self.fire_dir == 1:
+                            self.portside_cooldown = c.player_broadside_cooldown
+                        else:
+                            self.starboard_cooldown = c.player_broadside_cooldown
             else:
+                # advance intra-fire cycle
                 self.next_fire += 1
                 if self.next_fire == c.player_next_fire:
                     self.next_fire = 0
+
+        # cooldowns
+        if self.stern_cooldown > 0:
+            self.stern_cooldown -= c.dt
+            if self.stern_cooldown < 0:
+                self.stern_cooldown = 0
+        if self.portside_cooldown > 0:
+            self.portside_cooldown -= c.dt
+            if self.portside_cooldown < 0:
+                self.portside_cooldown = 0
+        if self.starboard_cooldown > 0:
+            self.starboard_cooldown -= c.dt
+            if self.starboard_cooldown < 0:
+                self.starboard_cooldown = 0
 
         # generate trail
         new_trail = Trail(self.global_x - sin(self.angle) * self.width / 2, self.global_y - cos(self.angle) * self.height / 2)
@@ -113,8 +143,20 @@ class Player:
             broadside_projectile = Projectile(start_x, start_y, angle, self)
             c.projectiles.append(broadside_projectile)
 
+    def recoil(self):
+        self.dx -= self.fire_dir * c.recoil * cos(self.angle)
+        self.dy += self.fire_dir *c.recoil * sin(self.angle)
+
+    def ready_to_fire(self, direction):
+        if direction == 0:
+            return self.stern_cooldown == 0
+        elif direction == 1:
+            return self.portside_cooldown == 0
+        else:
+            return self.starboard_cooldown == 0
+
     def prepare_fire(self, direction):
-        if not self.firing:
+        if not self.firing and self.ready_to_fire(direction):
             self.firing = True
             self.fire_dir = direction
             self.fire_cycle = 0

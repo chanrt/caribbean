@@ -20,6 +20,9 @@ class Constants:
         self.player_num_broadside_shots = 6
         self.player_num_stern_shots = 2
         self.player_next_fire = 40
+        self.player_broadside_cooldown = 3
+        self.player_stern_cooldown = 1.5
+        self.recoil = 2
 
         # projectile params
         self.projectile_speed = 200
