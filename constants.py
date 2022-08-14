@@ -10,7 +10,8 @@ class Constants:
 
         # colors
         self.water_color = pg.Color(9, 195, 219)
-        self.island_color = pg.Color(0, 128, 0)
+        self.sand_color = pg.Color(194, 178, 128)
+        self.grass_color = pg.Color(0, 200, 0)
 
         # player speed params
         self.player_move_speed = 30
@@ -34,7 +35,7 @@ class Constants:
         self.trail_decay_probability = 0.02
 
         # island params
-        self.island_num_points = 30
+        self.island_num_points = 36
         self.island_min_radius = 80
         self.island_max_radius = 100
         self.island_min_std = 5
@@ -55,6 +56,7 @@ class Constants:
 
     def set_dt(self, dt):
         self.dt = dt
+        self.fps = int(1.0 / dt)
 
 
 consts = Constants()

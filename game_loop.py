@@ -3,12 +3,15 @@ from time import time
 import pygame as pg
 
 from constants import consts as c
+from explosion import Explosion
+from images import imgs as i
 from island import Island
 from player import Player
 
 
 def game_loop(screen):
     pg.display.set_caption("Caribbean")
+    clock = pg.time.Clock()
 
     player = Player()
     c.set_player(player)
@@ -22,6 +25,8 @@ def game_loop(screen):
     islands = []
     island = Island(0, 500)
     islands.append(island)
+
+    explosions = []
 
     frame = 0
 
@@ -49,20 +54,26 @@ def game_loop(screen):
         screen.fill(c.water_color)
 
         # updates
-        player.update(keys_pressed)
+        if not player.destroyed:
+            player.update(keys_pressed)
         for island in islands:
             island.update()
         for trail in trails:
             trail.update()
         for projectile in projectiles:
             projectile.update()
+        for explosion in explosions:
+            explosion.update()
 
-        # check for collisions
-        for island in islands:
-            polygon = path.Path(island.global_points)
-            inside = polygon.contains_points(player.reference_points)
-            if any(inside):
-                return
+        # check for collision between player and islands
+        if not player.destroyed:
+            for island in islands:
+                polygon = path.Path(island.global_outer_points)
+                inside = polygon.contains_points(player.reference_points)
+                if any(inside):
+                    player.destroy()
+                    explosion = Explosion(player.global_x, player.global_y)
+                    explosions.append(explosion)
 
         # renders
         for trail in trails:
@@ -72,12 +83,16 @@ def game_loop(screen):
                 island.render()
         for projectile in projectiles:
             projectile.render()
-        player.render()
+        for explosion in explosions:
+            explosion.render()
+        if not player.destroyed:
+            player.render()
 
         pg.display.flip()
 
         end = time()
         c.set_dt(end - start)
+        # print(c.fps)
 
         # garbage collection
         frame += 1
@@ -97,5 +112,6 @@ if __name__ == '__main__':
     pg.init()
     screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
     # screen = pg.display.set_mode((800, 600))
+    i.convert()
     c.set_screen(screen)
     game_loop(screen)

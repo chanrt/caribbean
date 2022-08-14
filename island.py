@@ -16,11 +16,16 @@ class Island:
         mean_std = randint(c.island_min_std, c.island_max_std)
 
         # generate points
-        self.polygon = []
-        radii = random.normal(mean_radius, mean_std, c.island_num_points)
+        self.outer_polygon = []
+        outer_radii = random.normal(mean_radius, mean_std, c.island_num_points)
         thetas = linspace(0, 2 * pi, c.island_num_points)
-        for r, theta in zip(radii, thetas):
-            self.polygon.append((r * cos(theta), r * sin(theta)))
+        for r, theta in zip(outer_radii, thetas):
+            self.outer_polygon.append((r * cos(theta), r * sin(theta)))
+
+        self.inner_polygon = []
+        ratios = random.uniform(0.4, 0.8, c.island_num_points)
+        for ratio, r, theta in zip(ratios, outer_radii, thetas):
+            self.inner_polygon.append((ratio * r * cos(theta), ratio * r * sin(theta)))
 
         # flags
         self.inside_screen = False
@@ -38,8 +43,11 @@ class Island:
             self.inside_screen = False
 
         if self.inside_screen:
-            self.global_points = [(self.global_x + x, self.global_y + y) for x, y in self.polygon]
-            self.local_points = [(self.local_x + x, self.local_y + y) for x, y in self.polygon]
+            self.global_outer_points = [(self.global_x + x, self.global_y + y) for x, y in self.outer_polygon]
+            self.local_outer_points = [(self.local_x + x, self.local_y + y) for x, y in self.outer_polygon]
+            self.local_inner_points = [(self.local_x + x, self.local_y + y) for x, y in self.inner_polygon]
 
     def render(self):
-        pg.draw.polygon(c.screen, (255, 255, 255), self.local_points)
+        if self.inside_screen:
+            pg.draw.polygon(c.screen, c.sand_color, self.local_outer_points)
+            pg.draw.polygon(c.screen, c.grass_color, self.local_inner_points)

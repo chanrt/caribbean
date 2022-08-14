@@ -34,6 +34,9 @@ class Player:
         # trail
         self.trail_cycle = 0
 
+        # flags
+        self.destroyed = False
+
     def update(self, keys_pressed):
         self.dx, self.dy = 0, 0
 
@@ -170,3 +173,7 @@ class Player:
             self.firing = True
             self.fire_dir = direction
             self.fire_cycle = 0
+
+    def destroy(self):
+        self.destroyed = True
+        self.dx, self.dy, self.steer_angle = 0, 0, 0
