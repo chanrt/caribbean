@@ -1,23 +1,29 @@
-from math import ceil, radians
+from math import radians
 import pygame as pg
 
 
 class Constants:
     def __init__(self):
+        # render params
         self.fps = 120
         self.dt = 1.0 / self.fps
 
+        # colors
         self.water_color = pg.Color(9, 195, 219)
 
+        # player speed params
         self.player_move_speed = 30
         self.player_turn_rate = radians(0.2)
         self.player_max_turn = radians(10)
 
-        self.player_fire_cycle = 6
-        self.player_next_fire = 40
+        # player broadside params
+        self.player_broadside_fire_cycle = 6
+        self.player_broadside_next_fire = 40
 
+        # projectile params
         self.projectile_speed = 200
 
+        # trail params
         self.trail_radius = 10
         self.trail_decay_probability = 0.03
 

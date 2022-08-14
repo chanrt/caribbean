@@ -4,13 +4,19 @@ from constants import consts as c
 from images import imgs as i
 
 class Projectile:
-    def __init__(self, x, y, angle):
+    def __init__(self, x, y, angle, origin):
+        # sprite
         self.image = i.projectile
         self.width, self.height = self.image.get_size()
+        self.origin = origin
 
+        # positions and velocities
         self.global_x, self.global_y = x, y
         self.vx = c.projectile_speed * sin(angle) + c.player_move_speed * sin(c.player.angle)
         self.vy = c.projectile_speed * cos(angle) + c.player_move_speed * cos(c.player.angle)
+
+    def inside_screen(self):
+        return (0 < self.local_x < c.s_width) and (0 < self.local_y < c.s_height)
 
     def update(self):
         self.global_x += self.vx * c.dt

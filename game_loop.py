@@ -21,7 +21,6 @@ def game_loop(screen):
     frame = 0
 
     while True:
-        # clock.tick(c.fps)
         start = time()
 
         # inputs
@@ -33,9 +32,9 @@ def game_loop(screen):
                 if event.key == pg.K_ESCAPE:
                     return
                 if event.key == pg.K_q:
-                    player.prepare_fire(1)
+                    player.prepare_broadside_fire(1)
                 if event.key == pg.K_e:
-                    player.prepare_fire(-1)
+                    player.prepare_broadside_fire(-1)
 
         screen.fill(c.water_color)
 
@@ -58,6 +57,7 @@ def game_loop(screen):
         end = time()
         c.set_dt(end - start)
 
+        # garbage collection
         frame += 1
         if frame == c.fps:
             frame = 0
@@ -65,6 +65,10 @@ def game_loop(screen):
             # clear decayed trails
             trails = [trail for trail in trails if trail.radius > 0]
             c.set_trails(trails)
+
+            # clear decayed projectiles
+            projectiles = [projectile for projectile in projectiles if projectile.inside_screen()]
+            c.set_projectiles(projectiles)
 
 
 if __name__ == '__main__':
