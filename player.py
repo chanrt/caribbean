@@ -1,4 +1,5 @@
 from math import cos, degrees, pi, sin
+from numpy import array, zeros
 import pygame as pg
 
 from audio import aud as a
@@ -14,9 +15,10 @@ class Player:
         self.image = i.player_ship
         self.image_rect = self.image.get_rect(center=(c.s_width // 2, c.s_height // 2))
         self.width, self.height = self.image.get_size()
+        self.length_vector = array([self.width, self.height], dtype=float)
 
         # position and orientation
-        self.global_x, self.global_y = 0, 0
+        self.global_position = zeros(2, dtype=float)
         self.angle = 0
         self.steer_angle = 0
 
@@ -38,11 +40,10 @@ class Player:
         self.destroyed = False
 
     def update(self, keys_pressed):
-        self.dx, self.dy = 0, 0
-
-        # movement
-        self.dx += c.player_move_speed * sin(self.angle) * c.dt
-        self.dy += c.player_move_speed * cos(self.angle) * c.dt
+        self.velocity = zeros(2, dtype=float)
+        
+        self.heading = array([sin(self.angle), cos(self.angle)], dtype=float)
+        self.velocity += self.heading * c.player_move_speed
 
         # steering
         if (keys_pressed[pg.K_LEFT] or keys_pressed[pg.K_a]) and abs(self.steer_angle) < c.player_max_turn * c.dt:
@@ -60,8 +61,9 @@ class Player:
         # rotating image sprite
         if self.steer_angle != 0:
             self.image = pg.transform.rotate(i.player_ship, degrees(self.angle))
-            self.image_rect = self.image.get_rect(center=(c.s_width // 2, c.s_height // 2))
+            self.image_rect = self.image.get_rect(center=c.center_position)
             self.width, self.height = self.image.get_size()
+            self.length_vector[0], self.length_vector[1] = self.width, self.height
 
         # checking if firing
         if self.firing:
@@ -119,25 +121,18 @@ class Player:
         self.trail_cycle += 1
         if self.trail_cycle == c.player_trail_cycle:
             self.trail_cycle = 0
-            new_trail = Trail(self.global_x - sin(self.angle) * self.width / 2, self.global_y - cos(self.angle) * self.height / 2)
+            new_trail = Trail(self.global_position - self.heading * self.length_vector / 2)
             c.trails.append(new_trail)
 
         # updating changes
-        self.global_x += self.dx
-        self.global_y += self.dy
+        self.global_position += self.velocity * c.dt
         self.angle += self.steer_angle
 
         # updating reference points
-        self.front_x = self.global_x + sin(self.angle) * self.width / 2
-        self.front_y = self.global_y + cos(self.angle) * self.height / 2
-        self.back_x = self.global_x - sin(self.angle) * self.width / 2
-        self.back_y = self.global_y - cos(self.angle) * self.height / 2
-        # self.left_x = self.global_x - cos(self.angle) * self.width / 2
-        # self.left_y = self.global_y + sin(self.angle) * self.height / 2
-        # self.right_x = self.global_x + cos(self.angle) * self.width / 2
-        # self.right_y = self.global_y - sin(self.angle) * self.height / 2
+        self.front_position = self.global_position + self.heading * self.length_vector / 2
+        self.back_position = self.global_position - self.heading * self.length_vector / 2
 
-        self.reference_points = [[self.front_x, self.front_y], [self.back_x, self.back_y]]
+        self.reference_points = [self.front_position, self.back_position]
 
     def render(self):
         c.screen.blit(self.image, self.image_rect)
@@ -145,20 +140,19 @@ class Player:
     def fire(self):
         # decide projectile coords and direction
         if self.fire_dir == 0:
-            stern_projectile = Projectile(self.front_x, self.front_y, self.angle, self)
+            stern_projectile = Projectile(self.front_position, self.angle, self)
             c.projectiles.append(stern_projectile)
         else:
             interpolation = (self.fire_cycle + 1) / (c.player_num_broadside_shots + 1)
-            start_x = self.front_x + interpolation * (self.back_x - self.front_x)
-            start_y = self.front_y + interpolation * (self.back_y - self.front_y)
+            start_position = self.front_position + interpolation * (self.back_position - self.front_position)
             angle = self.angle + self.fire_dir * pi / 2
 
-            broadside_projectile = Projectile(start_x, start_y, angle, self)
+            broadside_projectile = Projectile(start_position, angle, self)
             c.projectiles.append(broadside_projectile)
 
     def recoil(self):
-        self.dx -= self.fire_dir * c.recoil * cos(self.angle)
-        self.dy += self.fire_dir *c.recoil * sin(self.angle)
+        recoil_vector = array([-cos(self.angle), sin(self.angle)])
+        self.velocity += self.fire_dir * c.recoil * recoil_vector
 
     def ready_to_fire(self, direction):
         if direction == 0:
@@ -176,4 +170,5 @@ class Player:
 
     def destroy(self):
         self.destroyed = True
-        self.dx, self.dy, self.steer_angle = 0, 0, 0
+        self.velocity[0], self.velocity[1] = 0, 0
+        self.steer_angle = 0

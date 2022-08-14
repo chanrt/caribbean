@@ -1,4 +1,5 @@
 from math import radians
+from numpy import array
 import pygame as pg
 
 
@@ -52,6 +53,7 @@ class Constants:
     def set_screen(self, screen):
         self.screen = screen
         self.s_width, self.s_height = screen.get_size()
+        self.center_position = array([self.s_width // 2, self.s_height // 2])
 
     def set_player(self, player):
         self.player = player

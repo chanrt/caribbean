@@ -31,7 +31,7 @@ def game_loop(screen):
     map_generator.check_neighbouring_sectors()
 
     for island in islands:
-        distance = distance_between(player.global_x, player.global_y, island.global_x, island.global_y)
+        distance = global_distance_between(player, island)
         if distance < c.sector_length:
             islands.remove(island)
 
@@ -82,13 +82,13 @@ def game_loop(screen):
                     inside = polygon.contains_points(player.reference_points)
                     if any(inside):
                         player.destroy()
-                        explosion = Explosion(player.global_x, player.global_y)
+                        explosion = Explosion(player.global_position)
                         explosions.append(explosion)
 
         # collision between projectiles and islands
         for projectile in projectiles:
             for island in islands:
-                distance = distance_between(projectile.global_x, projectile.global_y, island.global_x, island.global_y)
+                distance = global_distance_between(projectile, island)
                 if distance < island.mean_radius:
                     projectile.destroy()
 

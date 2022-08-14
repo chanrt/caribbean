@@ -1,4 +1,4 @@
 
 
-def distance_between(x1, y1, x2, y2):
-    return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
+def global_distance_between(a, b):
+    return ((a.global_position[0] - b.global_position[0]) ** 2 + (a.global_position[1] - b.global_position[1]) ** 2) ** 0.5

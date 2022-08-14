@@ -1,38 +1,37 @@
 from math import cos, sin
+from numpy import array
 
 from constants import consts as c
 from images import imgs as i
 
 class Projectile:
-    def __init__(self, x, y, angle, origin):
+    def __init__(self, position, angle, origin):
         # sprite
         self.image = i.projectile
         self.width, self.height = self.image.get_size()
+        self.length_vector = array([self.width, self.height], dtype=float)
         self.origin = origin
 
-        # positions and velocities
-        self.global_x, self.global_y = x, y
-        self.vx = c.projectile_speed * sin(angle) + c.player_move_speed * sin(c.player.angle)
-        self.vy = c.projectile_speed * cos(angle) + c.player_move_speed * cos(c.player.angle)
+        # position and velocity
+        self.global_position = position
+        heading = array([sin(angle), cos(angle)], dtype=float)
+        self.velocity = c.projectile_speed * heading + c.player.velocity
 
         # flags
         self.inside_screen = True
         self.destroyed = False
 
     def update(self):
-        self.global_x += self.vx * c.dt
-        self.global_y += self.vy * c.dt
+        self.global_position += self.velocity * c.dt
+        self.local_position = c.center_position + c.player.global_position - self.global_position - self.length_vector / 2
 
-        self.local_x = c.s_width / 2 + c.player.global_x - self.global_x - self.width / 2
-        self.local_y = c.s_height / 2 + c.player.global_y - self.global_y - self.height / 2
-
-        if (0 < self.local_x < c.s_width) and (0 < self.local_y < c.s_height):
+        if (0 < self.local_position[0] < c.s_width) and (0 < self.local_position[1] < c.s_height):
             self.inside_screen = True
         else:
             self.inside_screen = False
 
     def render(self):
-        c.screen.blit(i.projectile, (self.local_x, self.local_y))
+        c.screen.blit(i.projectile, self.local_position)
 
     def destroy(self):
         self.destroyed = True
