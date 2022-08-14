@@ -6,7 +6,9 @@ from constants import consts as c
 from explosion import Explosion
 from images import imgs as i
 from island import Island
+from map_generator import MapGenerator
 from player import Player
+from utils import *
 
 
 def game_loop(screen):
@@ -23,8 +25,15 @@ def game_loop(screen):
     c.set_projectiles(projectiles)
 
     islands = []
-    island = Island(0, 500)
-    islands.append(island)
+    c.set_islands(islands)
+
+    map_generator = MapGenerator()
+    map_generator.check_neighbouring_sectors()
+
+    for island in islands:
+        distance = distance_between(player.global_x, player.global_y, island.global_x, island.global_y)
+        if distance < c.sector_length:
+            islands.remove(island)
 
     explosions = []
 
@@ -65,15 +74,23 @@ def game_loop(screen):
         for explosion in explosions:
             explosion.update()
 
-        # check for collision between player and islands
+        # collision between player and islands
         if not player.destroyed:
             for island in islands:
-                polygon = path.Path(island.global_outer_points)
-                inside = polygon.contains_points(player.reference_points)
-                if any(inside):
-                    player.destroy()
-                    explosion = Explosion(player.global_x, player.global_y)
-                    explosions.append(explosion)
+                if island.inside_screen:
+                    polygon = path.Path(island.global_outer_points)
+                    inside = polygon.contains_points(player.reference_points)
+                    if any(inside):
+                        player.destroy()
+                        explosion = Explosion(player.global_x, player.global_y)
+                        explosions.append(explosion)
+
+        # collision between projectiles and islands
+        for projectile in projectiles:
+            for island in islands:
+                distance = distance_between(projectile.global_x, projectile.global_y, island.global_x, island.global_y)
+                if distance < island.mean_radius:
+                    projectile.destroy()
 
         # renders
         for trail in trails:
@@ -94,9 +111,9 @@ def game_loop(screen):
         c.set_dt(end - start)
         # print(c.fps)
 
-        # garbage collection
+        # garbage collection and non important tasks
         frame += 1
-        if frame == c.fps:
+        if frame == c.garbage_collect:
             frame = 0
 
             # clear decayed trails
@@ -104,8 +121,11 @@ def game_loop(screen):
             c.set_trails(trails)
 
             # clear decayed projectiles
-            projectiles = [projectile for projectile in projectiles if projectile.inside_screen()]
+            projectiles = [projectile for projectile in projectiles if projectile.inside_screen and not projectile.destroyed]
             c.set_projectiles(projectiles)
+
+            # check for unmapped neighbouring sectors
+            map_generator.check_neighbouring_sectors()
 
 
 if __name__ == '__main__':

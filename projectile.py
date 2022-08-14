@@ -15,8 +15,9 @@ class Projectile:
         self.vx = c.projectile_speed * sin(angle) + c.player_move_speed * sin(c.player.angle)
         self.vy = c.projectile_speed * cos(angle) + c.player_move_speed * cos(c.player.angle)
 
-    def inside_screen(self):
-        return (0 < self.local_x < c.s_width) and (0 < self.local_y < c.s_height)
+        # flags
+        self.inside_screen = True
+        self.destroyed = False
 
     def update(self):
         self.global_x += self.vx * c.dt
@@ -25,5 +26,13 @@ class Projectile:
         self.local_x = c.s_width / 2 + c.player.global_x - self.global_x - self.width / 2
         self.local_y = c.s_height / 2 + c.player.global_y - self.global_y - self.height / 2
 
+        if (0 < self.local_x < c.s_width) and (0 < self.local_y < c.s_height):
+            self.inside_screen = True
+        else:
+            self.inside_screen = False
+
     def render(self):
         c.screen.blit(i.projectile, (self.local_x, self.local_y))
+
+    def destroy(self):
+        self.destroyed = True

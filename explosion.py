@@ -23,5 +23,4 @@ class Explosion:
 
     def render(self):
         if self.cycle < len(self.images):
-            print(self.cycle)
             c.screen.blit(self.images[self.cycle], (self.local_x, self.local_y))

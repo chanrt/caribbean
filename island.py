@@ -12,18 +12,18 @@ class Island:
         self.global_x, self.global_y = x, y
 
         # size params
-        mean_radius = randint(c.island_min_radius, c.island_max_radius)
-        mean_std = randint(c.island_min_std, c.island_max_std)
+        self.mean_radius = randint(c.island_min_radius, c.island_max_radius)
+        self.mean_std = randint(c.island_min_std, c.island_max_std)
 
         # generate points
         self.outer_polygon = []
-        outer_radii = random.normal(mean_radius, mean_std, c.island_num_points)
+        outer_radii = random.normal(self.mean_radius, self.mean_std, c.island_num_points)
         thetas = linspace(0, 2 * pi, c.island_num_points)
         for r, theta in zip(outer_radii, thetas):
             self.outer_polygon.append((r * cos(theta), r * sin(theta)))
 
         self.inner_polygon = []
-        ratios = random.uniform(0.4, 0.8, c.island_num_points)
+        ratios = random.uniform(c.island_inner_min, c.island_inner_max, c.island_num_points)
         for ratio, r, theta in zip(ratios, outer_radii, thetas):
             self.inner_polygon.append((ratio * r * cos(theta), ratio * r * sin(theta)))
 

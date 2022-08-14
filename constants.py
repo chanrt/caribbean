@@ -5,13 +5,14 @@ import pygame as pg
 class Constants:
     def __init__(self):
         # render params
+        self.garbage_collect = 60
         self.fps = 120
         self.dt = 1.0 / self.fps
 
         # colors
         self.water_color = pg.Color(9, 195, 219)
         self.sand_color = pg.Color(194, 178, 128)
-        self.grass_color = pg.Color(0, 200, 0)
+        self.grass_color = pg.Color(0, 150, 0)
 
         # player speed params
         self.player_move_speed = 30
@@ -40,6 +41,13 @@ class Constants:
         self.island_max_radius = 100
         self.island_min_std = 5
         self.island_max_std = 10
+        self.island_inner_min = 0.5
+        self.island_inner_max = 0.6
+
+        # sector params
+        self.sector_length = 700
+        self.min_islands = 1
+        self.max_islands = 3
 
     def set_screen(self, screen):
         self.screen = screen
@@ -53,6 +61,9 @@ class Constants:
 
     def set_projectiles(self, projectiles):
         self.projectiles = projectiles
+
+    def set_islands(self, islands):
+        self.islands = islands
 
     def set_dt(self, dt):
         self.dt = dt
