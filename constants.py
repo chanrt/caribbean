@@ -10,6 +10,11 @@ class Constants:
         self.fps = 120
         self.dt = 1.0 / self.fps
 
+        # object lists
+        self.all_objects = []
+        self.islands = []
+        self.pirates = []
+
         # colors
         self.water_color = pg.Color(9, 195, 219)
         self.sand_color = pg.Color(194, 178, 128)
@@ -29,16 +34,16 @@ class Constants:
         # player fire params
         self.player_num_broadside_shots = 6
         self.player_num_stern_shots = 2
-        self.player_next_fire = 40
-        self.player_broadside_cooldown = 3
-        self.player_stern_cooldown = 1.5
+        self.next_fire_cooldown_time = 0.25
+        self.broadside_cooldown_time = 3
+        self.stern_cooldown_time = 1.5
         self.recoil = 1
 
         # projectile params
         self.projectile_speed = 200
 
         # trail params
-        self.player_trail_cycle = 10
+        self.full_trail_cycle = 10
         self.trail_radius = 10
         self.trail_decay_probability = 0.02
 
@@ -55,9 +60,13 @@ class Constants:
         self.sector_length = 700
         self.min_islands = 1
         self.max_islands = 2
+        self.num_pirates = 1
 
-        # all objects
-        self.all_objects = []
+        # explosion
+        self.explosion_rate = 0.33
+
+        # leeways
+        self.pirate_leeway = 113
 
     def set_screen(self, screen):
         self.screen = screen
@@ -66,7 +75,7 @@ class Constants:
 
     def set_player(self, player):
         self.player = player
-        # self.all_objects.append(player)
+        self.all_objects.append(player)
 
     def set_trails(self, trails):
         self.trails = trails
@@ -74,23 +83,17 @@ class Constants:
     def set_projectiles(self, projectiles):
         self.projectiles = projectiles
 
-    def set_islands(self, islands):
-        self.islands = islands
-        for island in self.islands:
-            self.all_objects.append(island)
+    def set_dt(self, dt):
+        self.dt = dt
+        self.fps = int(1.0 / dt)
 
     def add_island(self, island):
         self.islands.append(island)
         self.all_objects.append(island)
 
-    def set_pirates(self, pirates):
-        self.pirates = pirates
-        for pirate in self.pirates:
-            self.all_objects.append(pirate)
-
-    def set_dt(self, dt):
-        self.dt = dt
-        self.fps = int(1.0 / dt)
+    def add_pirate(self, pirate):
+        self.pirates.append(pirate)
+        self.all_objects.append(pirate)
 
 
 consts = Constants()

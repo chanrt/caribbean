@@ -2,6 +2,7 @@ from matplotlib import path
 from time import time
 import pygame as pg
 
+from audio import aud as a
 from constants import consts as c
 from explosion import Explosion
 from images import imgs as i
@@ -20,27 +21,14 @@ def game_loop(screen):
     player = Player()
     c.set_player(player)
 
+    map_generator = MapGenerator()
+    map_generator.check_neighbouring_sectors()
+
     trails = []
     c.set_trails(trails)
 
     projectiles = []
     c.set_projectiles(projectiles)
-
-    pirates = []
-    pirate = Pirate([0, 250], 0)
-    pirates.append(pirate)
-    c.set_pirates(pirates)
-
-    islands = []
-    c.set_islands(islands)
-
-    map_generator = MapGenerator()
-    map_generator.check_neighbouring_sectors()
-
-    for island in islands:
-        distance = global_distance_between(player, island)
-        if distance < c.sector_length / 2:
-            islands.remove(island)
 
     explosions = []
 
@@ -73,43 +61,45 @@ def game_loop(screen):
         # updates
         if not player.destroyed:
             player.update(keys_pressed)
-        for island in islands:
+        for island in c.islands:
             island.update()
-        for trail in trails:
-            trail.update()
         for projectile in projectiles:
             projectile.update()
         for explosion in explosions:
             explosion.update()
-        for pirate in pirates:
+        for pirate in c.pirates:
             pirate.update()
+        for trail in trails:
+            trail.update()
 
         # collision between player and islands
         if not player.destroyed:
-            for island in islands:
+            for island in c.islands:
                 if island.inside_screen:
                     polygon = path.Path(island.global_outer_points)
                     inside = polygon.contains_points(player.reference_points)
                     if any(inside):
                         player.destroy()
+                        a.explosion.play()
                         explosion = Explosion(player.global_position)
                         explosions.append(explosion)
 
         # collision between pirates and islands
-        for pirate in pirates:
-            for island in islands:
+        for pirate in c.pirates:
+            for island in c.islands:
                 if island.inside_screen and not pirate.destroyed:
                     polygon = path.Path(island.global_outer_points)
                     inside = polygon.contains_points(pirate.reference_points)
                     if any(inside):
                         pirate.destroy()
+                        a.explosion.play()
                         explosion = Explosion(pirate.global_position)
                         explosions.append(explosion)
                         return
 
         # collision between projectiles and islands
         for projectile in projectiles:
-            for island in islands:
+            for island in c.islands:
                 distance = global_distance_between(projectile, island)
                 if distance < island.mean_radius:
                     projectile.destroy()
@@ -117,15 +107,15 @@ def game_loop(screen):
         # renders
         for trail in trails:
             trail.render()
-        for island in islands:
+        for island in c.islands:
             island.render_outer()
-        for island in islands:
+        for island in c.islands:
             island.render_inner()
         for projectile in projectiles:
             projectile.render()
         for explosion in explosions:
             explosion.render()
-        for pirate in pirates:
+        for pirate in c.pirates:
             pirate.render()
         if not player.destroyed:
             player.render()
@@ -134,7 +124,7 @@ def game_loop(screen):
 
         end = time()
         c.set_dt(end - start)
-        # print("FPS:", c.fps)
+        print("FPS:", c.fps)
 
         # garbage collection and non important tasks
         frame += 1

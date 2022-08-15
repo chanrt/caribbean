@@ -1,9 +1,12 @@
 from itertools import product
-from numpy import floor
-from random import randint
+from math import pi
+from numpy import array, floor
+from random import random, randint
 
 from constants import consts as c
 from island import Island
+from pirate import Pirate
+from utils import *
 
 
 class MapGenerator:
@@ -20,8 +23,29 @@ class MapGenerator:
         for _ in range(num_islands):
             x = randint(x_min, x_max)
             y = randint(y_min, y_max)
+
             new_island = Island(x, y)
-            c.add_island(new_island)
+
+            if global_distance_between(new_island, c.player) > c.sector_length / 2:
+                c.add_island(new_island)
+
+        for _ in range(c.num_pirates):
+            while True:
+                x = randint(x_min, x_max)
+                y = randint(y_min, y_max)
+                angle = random() * 2 * pi - pi
+
+                new_pirate = Pirate(array([x, y], dtype=float), angle)
+                no_problem = True
+
+                for island in c.islands:
+                    if global_distance_between(island, new_pirate) < c.sector_length / 3:
+                        no_problem = False
+                        break
+
+                if no_problem:
+                    c.add_pirate(new_pirate)
+                    break
 
         # add to sectors mapped
         self.sectors_mapped.append(sector)

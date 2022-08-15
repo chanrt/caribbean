@@ -26,9 +26,9 @@ class Player:
         self.fire_cycle = 0
         self.firing = False
         self.fire_dir = 0
-        self.next_fire = 0
 
         # cooldowns
+        self.next_fire_cooldown = 0
         self.portside_cooldown = 0
         self.stern_cooldown = 0
         self.starboard_cooldown = 0
@@ -69,7 +69,7 @@ class Player:
 
         # checking if firing
         if self.firing:
-            if self.next_fire == 0:
+            if self.next_fire_cooldown == 0:
                 self.fire()
 
                 # play sound
@@ -80,7 +80,7 @@ class Player:
                     self.recoil()
 
                 # advance fire cycles
-                self.next_fire += 1
+                self.next_fire_cooldown += c.dt
                 self.fire_cycle += 1
 
                 if self.fire_dir == 0:
@@ -88,7 +88,7 @@ class Player:
                     if self.fire_cycle == c.player_num_stern_shots:
                         self.firing = False
                         self.fire_cycle = 0
-                        self.stern_cooldown = c.player_stern_cooldown
+                        self.stern_cooldown = c.stern_cooldown_time
                 else:
                     # stop broadside fire
                     if self.fire_cycle == c.player_num_broadside_shots:
@@ -96,14 +96,14 @@ class Player:
                         self.fire_cycle = 0
 
                         if self.fire_dir == 1:
-                            self.portside_cooldown = c.player_broadside_cooldown
+                            self.portside_cooldown = c.broadside_cooldown_time
                         else:
-                            self.starboard_cooldown = c.player_broadside_cooldown
+                            self.starboard_cooldown = c.broadside_cooldown_time
             else:
                 # advance intra-fire cycle
-                self.next_fire += 1
-                if self.next_fire == c.player_next_fire:
-                    self.next_fire = 0
+                self.next_fire_cooldown += c.dt
+                if self.next_fire_cooldown > c.next_fire_cooldown_time:
+                    self.next_fire_cooldown = 0
 
         # cooldowns
         if self.stern_cooldown > 0:
@@ -119,18 +119,18 @@ class Player:
             if self.starboard_cooldown < 0:
                 self.starboard_cooldown = 0
 
-        # generate trail
-        self.trail_cycle += 1
-        if self.trail_cycle == c.player_trail_cycle:
-            self.trail_cycle = 0
-            new_trail = Trail(self.global_position - self.heading * self.length_vector / 2)
-            c.trails.append(new_trail)
-
         # updating reference points
         self.front_position = self.global_position + self.heading * self.length_vector / 2
         self.back_position = self.global_position - self.heading * self.length_vector / 2
 
         self.reference_points = [self.front_position, self.back_position]
+
+        # generate trail
+        self.trail_cycle += 1
+        if self.trail_cycle == c.full_trail_cycle:
+            self.trail_cycle = 0
+            new_trail = Trail(self.back_position)
+            c.trails.append(new_trail)
 
         # print(self.velocity)
         # print(degrees(self.angle))

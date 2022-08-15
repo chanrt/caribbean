@@ -4,13 +4,14 @@ import pygame as pg
 
 from constants import consts as c
 from images import imgs as i
+from trail import Trail
 from utils import *
 
 
 class Pirate:
     def __init__(self, position, angle):
         # sprite
-        self.image = i.pirate_ship
+        self.image = pg.transform.rotate(i.pirate_ship, degrees(angle))
         self.width, self.height = self.image.get_size()
         self.length_vector = array([self.width, self.height], dtype=float)
 
@@ -22,6 +23,10 @@ class Pirate:
 
         self.front_position = self.global_position + self.heading * self.length_vector / 2
         self.back_position = self.global_position - self.heading * self.length_vector / 2
+        self.reference_points = [self.front_position, self.back_position]
+
+        # trail
+        self.trail_cycle = 0
 
         # flags
         self.destroyed = False
@@ -31,7 +36,7 @@ class Pirate:
     def update(self):
         self.local_position = c.center_position + c.player.global_position - self.global_position - self.length_vector / 2
         
-        if 0 < self.local_position[0] < c.s_width and 0 < self.local_position[1] < c.s_height:
+        if inside_screen(self, "pirate"):
             self.inside_screen = True
         else:
             self.inside_screen = False
@@ -75,8 +80,13 @@ class Pirate:
 
             self.front_position = self.global_position + self.heading * self.length_vector / 2
             self.back_position = self.global_position - self.heading * self.length_vector / 2
-
             self.reference_points = [self.front_position, self.back_position]
+
+            self.trail_cycle += 1
+            if self.trail_cycle == c.full_trail_cycle:
+                self.trail_cycle = 0
+                new_trail = Trail(self.back_position)
+                c.trails.append(new_trail)
 
     def render(self):
         if self.inside_screen:

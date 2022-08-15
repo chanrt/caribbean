@@ -6,6 +6,7 @@ class Audio:
         pg.mixer.init()
         self.broadside_fire = pg.mixer.Sound('sounds/broadside_fire.wav')
         self.stern_fire = pg.mixer.Sound('sounds/stern_fire.wav')
+        self.explosion = pg.mixer.Sound('sounds/explosion.wav')
 
 
 aud = Audio()

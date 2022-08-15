@@ -1,3 +1,4 @@
+from math import floor
 from numpy import array
 import pygame as pg
 
@@ -17,8 +18,8 @@ class Explosion:
 
     def update(self):
         self.local_position = c.center_position + c.player.global_position - self.global_position - self.length_vector / 2
-        self.cycle += 1
+        self.cycle += c.explosion_rate
 
     def render(self):
         if self.cycle < len(self.images):
-            c.screen.blit(self.images[self.cycle], self.local_position)
+            c.screen.blit(self.images[floor(self.cycle)], self.local_position)
