@@ -32,8 +32,10 @@ class Pirate:
         self.destroyed = False
         self.inside_screen = False
         self.angle_changed = False
+        self.current_action = "none"
 
     def update(self):
+        self.current_action = "none"
         self.local_position = c.center_position + c.player.global_position - self.global_position - self.length_vector / 2
         
         if inside_screen(self, "pirate"):
@@ -47,21 +49,25 @@ class Pirate:
 
             self.get_repelling_objects()
             if len(self.repelling_objects) > 0:
-                # print(self.repelling_objects)
+                # steer away from nearby islands and ships
                 repulsion_sum = zeros(2, dtype=float)
                 for obj in self.repelling_objects:
                     repelling_vector = obj.global_position - self.global_position
-                    repelling_vector /= linalg.norm(repelling_vector)
-                    repulsion_sum += repelling_vector
-
-                # act as if something is behind the ship too
-                # repelling_vector = self.back_position - self.global_position
-                # repelling_vector /= linalg.norm(repelling_vector)
-                # repulsion_sum += repelling_vector
-
-                repulsion_sum *= -1
-                # print(repulsion_sum)
-                self.set_velocity(repulsion_sum)
+                    repulsion_sum += repelling_vector / linalg.norm(repelling_vector)
+                self.set_velocity(-1 * repulsion_sum)
+                self.current_action = "repelling"
+            else:
+                if global_distance_between(c.player, self) < c.orientation_radius:
+                    # orient such that broadside is facing player
+                    player_direction = c.player.global_position - self.global_position
+                    required_velocity = array([player_direction[1], -player_direction[0]], dtype=float)
+                    self.set_velocity(required_velocity / linalg.norm(required_velocity))
+                    self.current_action = "orienting"
+                elif global_distance_between(c.player, self) < c.attraction_radius:
+                    # steer towards player
+                    player_direction = c.player.global_position - self.global_position
+                    self.set_velocity(player_direction / linalg.norm(player_direction))
+                    self.current_action = "attracting"
 
             if self.angle_changed:
                 self.image = pg.transform.rotate(i.pirate_ship, degrees(self.angle))
@@ -91,6 +97,10 @@ class Pirate:
     def render(self):
         if self.inside_screen:
             c.screen.blit(self.image, self.local_position)
+
+            if self.current_action != "none":
+                current_action_text = c.font.render(self.current_action, True, (255, 255, 255))
+                c.screen.blit(current_action_text, self.local_position)
 
     def set_velocity(self, req_velocity):
         req_angle = atan2(req_velocity[0], req_velocity[1])

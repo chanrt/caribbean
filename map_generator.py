@@ -21,14 +21,26 @@ class MapGenerator:
         # add islands
         num_islands = randint(c.min_islands, c.max_islands)
         for _ in range(num_islands):
-            x = randint(x_min, x_max)
-            y = randint(y_min, y_max)
+            while True:
+                x = randint(x_min, x_max)
+                y = randint(y_min, y_max)
 
-            new_island = Island(x, y)
+                new_island = Island(x, y)
+                no_problem = True
 
-            if global_distance_between(new_island, c.player) > c.sector_length / 2:
-                c.add_island(new_island)
+                if global_distance_between(new_island, c.player) < c.sector_length / 2:
+                    no_problem = False
+                if no_problem:
+                    for pirate in c.pirates:
+                        if global_distance_between(pirate, new_island) < c.sector_length / 2:
+                            no_problem = False
+                            break
 
+                if no_problem:
+                    c.add_island(new_island)
+                    break
+
+        # add pirates
         for _ in range(c.num_pirates):
             while True:
                 x = randint(x_min, x_max)
@@ -38,10 +50,13 @@ class MapGenerator:
                 new_pirate = Pirate(array([x, y], dtype=float), angle)
                 no_problem = True
 
-                for island in c.islands:
-                    if global_distance_between(island, new_pirate) < c.sector_length / 3:
-                        no_problem = False
-                        break
+                if global_distance_between(new_pirate, c.player) < c.sector_length / 2:
+                    no_problem = False
+                if no_problem:
+                    for island in c.islands:
+                        if global_distance_between(island, new_pirate) < c.sector_length / 2:
+                            no_problem = False
+                            break
 
                 if no_problem:
                     c.add_pirate(new_pirate)

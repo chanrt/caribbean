@@ -30,6 +30,8 @@ class Constants:
 
         # flocking params
         self.repulsion_radius = 200
+        self.orientation_radius = 400
+        self.attraction_radius = 600
 
         # player fire params
         self.player_num_broadside_shots = 6
@@ -57,7 +59,7 @@ class Constants:
         self.island_inner_max = 0.6
 
         # sector params
-        self.sector_length = 700
+        self.sector_length = 800
         self.min_islands = 1
         self.max_islands = 2
         self.num_pirates = 1
@@ -67,6 +69,10 @@ class Constants:
 
         # leeways
         self.pirate_leeway = 113
+
+        # font
+        pg.init()
+        self.font = pg.font.SysFont("arial", 25)
 
     def set_screen(self, screen):
         self.screen = screen
@@ -94,6 +100,10 @@ class Constants:
     def add_pirate(self, pirate):
         self.pirates.append(pirate)
         self.all_objects.append(pirate)
+
+    def remove_pirate(self, pirate):
+        self.pirates.remove(pirate)
+        self.all_objects.remove(pirate)
 
 
 consts = Constants()

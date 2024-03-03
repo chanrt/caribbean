@@ -1,5 +1,7 @@
 from matplotlib import path
 from time import time
+import cProfile
+import pstats
 import pygame as pg
 
 from audio import aud as a
@@ -92,10 +94,11 @@ def game_loop(screen):
                     inside = polygon.contains_points(pirate.reference_points)
                     if any(inside):
                         pirate.destroy()
+                        c.remove_pirate(pirate)
+
                         a.explosion.play()
                         explosion = Explosion(pirate.global_position)
                         explosions.append(explosion)
-                        return
 
         # collision between projectiles and islands
         for projectile in projectiles:
@@ -124,7 +127,7 @@ def game_loop(screen):
 
         end = time()
         c.set_dt(end - start)
-        print("FPS:", c.fps)
+        # print("FPS:", c.fps)
 
         # garbage collection and non important tasks
         frame += 1
@@ -144,8 +147,17 @@ def game_loop(screen):
 
 
 if __name__ == '__main__':
-    pg.init()
-    screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
-    # screen = pg.display.set_mode((800, 600))
-    c.set_screen(screen)
-    game_loop(screen)
+    # pg.init()
+    # screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
+    # c.set_screen(screen)
+    # game_loop(screen)
+
+    with cProfile.Profile() as profile:
+        pg.init()
+        screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
+        c.set_screen(screen)
+        game_loop(screen)
+
+    stats = pstats.Stats(profile)
+    stats.sort_stats(pstats.SortKey.TIME)
+    stats.dump_stats("profile.prof")
