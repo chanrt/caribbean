@@ -65,12 +65,12 @@ def game_loop(screen):
             player.update(keys_pressed)
         for island in c.islands:
             island.update()
+        for pirate in c.pirates:
+            pirate.update()
         for projectile in projectiles:
             projectile.update()
         for explosion in explosions:
             explosion.update()
-        for pirate in c.pirates:
-            pirate.update()
         for trail in trails:
             trail.update()
 
@@ -107,6 +107,21 @@ def game_loop(screen):
                 if distance < island.mean_radius:
                     projectile.destroy()
 
+        # collision between projectiles and pirates
+        for projectile in projectiles:
+            for pirate in c.pirates:
+                if pirate.inside_screen and pirate != projectile.origin:
+                    polygon = path.Path(pirate.reference_points)
+                    inside = polygon.contains_point(projectile.global_position)
+                    if inside:
+                        projectile.destroy()
+                        pirate.destroy()
+                        c.remove_pirate(pirate)
+
+                        a.explosion.play()
+                        explosion = Explosion(pirate.global_position)
+                        explosions.append(explosion)
+
         # renders
         for trail in trails:
             trail.render()
@@ -124,10 +139,8 @@ def game_loop(screen):
             player.render()
 
         pg.display.flip()
-
         end = time()
         c.set_dt(end - start)
-        # print("FPS:", c.fps)
 
         # garbage collection and non important tasks
         frame += 1

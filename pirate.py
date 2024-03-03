@@ -1,9 +1,11 @@
 from math import atan2, cos, degrees, pi, sin
-from numpy import array, linalg, zeros
+from numpy import array, dot, linalg, zeros
 import pygame as pg
 
+from audio import aud as a
 from constants import consts as c
 from images import imgs as i
+from projectile import Projectile
 from trail import Trail
 from utils import *
 
@@ -28,6 +30,9 @@ class Pirate:
         # trail
         self.trail_cycle = 0
 
+        # cooldowns
+        self.fire_cooldown = 0
+
         # flags
         self.destroyed = False
         self.inside_screen = False
@@ -46,6 +51,7 @@ class Pirate:
         if self.inside_screen:
             self.heading = array([sin(self.angle), cos(self.angle)], dtype=float)
             self.velocity = self.heading * c.pirate_move_speed
+            player_direction = c.player.global_position - self.global_position
 
             self.get_repelling_objects()
             if len(self.repelling_objects) > 0:
@@ -59,15 +65,24 @@ class Pirate:
             else:
                 if global_distance_between(c.player, self) < c.orientation_radius:
                     # orient such that broadside is facing player
-                    player_direction = c.player.global_position - self.global_position
                     required_velocity = array([player_direction[1], -player_direction[0]], dtype=float)
                     self.set_velocity(required_velocity / linalg.norm(required_velocity))
                     self.current_action = "orienting"
                 elif global_distance_between(c.player, self) < c.attraction_radius:
                     # steer towards player
-                    player_direction = c.player.global_position - self.global_position
                     self.set_velocity(player_direction / linalg.norm(player_direction))
                     self.current_action = "attracting"
+
+            if global_distance_between(c.player, self) < c.attraction_radius:
+                dot_product = dot(self.velocity / abs(self.velocity), player_direction / abs(player_direction))
+                angle_between = atan2(self.velocity[0], self.velocity[1]) - atan2(player_direction[0], player_direction[1])
+                if self.fire_cooldown <= 0 and abs(dot_product) < 0.01:
+                    if angle_between > 0:
+                        self.fire(-pi / 2)
+                    else:
+                        self.fire(pi / 2)
+                    self.current_action = "firing"
+                    self.fire_cooldown = c.pirate_fire_cooldown
 
             if self.angle_changed:
                 self.image = pg.transform.rotate(i.pirate_ship, degrees(self.angle))
@@ -86,13 +101,18 @@ class Pirate:
 
             self.front_position = self.global_position + self.heading * self.length_vector / 2
             self.back_position = self.global_position - self.heading * self.length_vector / 2
-            self.reference_points = [self.front_position, self.back_position]
+            self.left_position = self.global_position + array([-self.heading[1], self.heading[0]], dtype=float) * self.length_vector / 2
+            self.right_position = self.global_position - array([-self.heading[1], self.heading[0]], dtype=float) * self.length_vector / 2
+            self.reference_points = [self.front_position, self.right_position, self.back_position, self.left_position]
 
             self.trail_cycle += 1
             if self.trail_cycle == c.full_trail_cycle:
                 self.trail_cycle = 0
                 new_trail = Trail(self.back_position)
                 c.trails.append(new_trail)
+
+            if self.fire_cooldown > 0:
+                self.fire_cooldown -= c.dt
 
     def render(self):
         if self.inside_screen:
@@ -127,6 +147,11 @@ class Pirate:
                     # print("turning right")
                     self.angle -= c.pirate_turn_speed * c.dt
                     self.angle_changed = True
+
+    def fire(self, angle):
+        new_projectile = Projectile((self.front_position + self.back_position) / 2, self.angle + angle, self)
+        c.projectiles.append(new_projectile)
+        a.broadside_fire.play()
 
     def get_repelling_objects(self):
         self.repelling_objects = []

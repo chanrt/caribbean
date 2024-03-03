@@ -39,6 +39,7 @@ class Constants:
         self.next_fire_cooldown_time = 0.25
         self.broadside_cooldown_time = 3
         self.stern_cooldown_time = 1.5
+        self.pirate_fire_cooldown = 1
         self.recoil = 1
 
         # projectile params
